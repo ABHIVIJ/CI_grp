@@ -1,18 +1,20 @@
 #include <iostream>
 #include <set>
 #include "grid.h"
+#include "component.h"
 
 using namespace std;
 
 bool isSolvable(grid inp);
 int getInvCount(grid inp);
 void a_star(grid inp);
+int heur(grid start);
 
 int main(){
 	grid inp;
 	int arr[9];
+	
 	//here input the elements into the array
-
 	inp.setGrid(*arr);
 
 	if(!isSolvable(inp)){
@@ -48,5 +50,66 @@ int getInvCount(grid inp)
 }
 
 void a_star(grid inp){
+	set<component> closed,open,came_from;
+	set<component>::iterator current;
+	component inserter,temp;
+	grid g,g_up,g_down,g_left,g_right;
+	bool isLeft,isUp,isDown,isRight,isPresent;
+	int h;
+
+	closed.clear();
+	open.clear();
+	came_from.clear();
+
+    h = heur(inp);
+	inserter.setGrid(inp);
+	inserter.setGscore(0);
+    inserter.setHscore(h);
+	inserter.setFscore(h);
+
+    open.insert(inserter);
+
+    while(!open.empty()){
+    	iter = open.begin();
+    	g = iter->getGrid();
+    	if(g.isRightConfig()){
+        	reconstruct_path(came_from);
+        	break;
+    	}
+    	else{
+    		current = open.begin();
+    		closed.insert(*current);
+    		open.erase(current);
+
+    		//now generate the children
+    		g_right = g;
+    		g_left = g;
+    		g_up = g;
+    		g_down = g;
+    		isLeft = g_left.left();
+    		isRight = g_right.right();
+    		isUp = g_up.up();
+    		isDown = g_down.down();
+
+    		if(isDown){
+    			isPresent = false;
+    			for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
+    				temp = *itt;
+    				if(){}
+    			}
+    		}
+
+    		if(isRight){}
+
+    		if(isLeft){}
+
+    		if(isUp){}
+    	}
+    }
+
+
+}
+
+int heur(grid inp){
 
 }
