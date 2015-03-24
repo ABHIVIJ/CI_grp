@@ -3,6 +3,12 @@ class component{
 		grid a;
 		int g_score,f_score,h;
 	public:
+		component(){
+			g_score = 0;
+			f_score = 0;
+			h = 0;
+		}
+
 		void setGscore(int g){
 			g_score = g;
 		}
@@ -37,32 +43,39 @@ class component{
 
 		//operator overloaing starts from here
 
-		bool operator== (component a) const{
-			if(f_score == a.getFscore())
+		bool operator== (component b) const{
+			if(f_score == b.getFscore())
 				return true;
 			else
 				return false;
 		}
 
-		bool operator> (component a) const{
-			if(f_score > a.getFscore())
+		bool operator> (component b) const{
+			if(f_score > b.getFscore())
 				return true;
 			else
 				return false;
 		}
 
-		bool operator< (component a) const{
-			if(f_score < a.getFscore())
+		bool operator< (component b) const{
+			if(f_score < b.getFscore())
 				return true;
 			else
 				return false;
 		}
 
-		bool operator= (component a){
-			f_score = a.getFscore();
-			g_score = a.getGscore();
-			h = a.getHscore();
-			a = a.getGrid();
+		bool operator= (component b){
+			f_score = b.getFscore();
+			g_score = b.getGscore();
+			h = b.getHscore();
+			a = b.getGrid();
+		}
+
+		void clearer(){
+			a.clearer();
+			g_score = 0;
+			f_score = 0;
+			h = 0;
 		}
 
 

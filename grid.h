@@ -1,3 +1,5 @@
+#include <string>
+
 class grid{
 	private:
 		int block[3][3],base[3][3],zero_position;
@@ -27,17 +29,17 @@ class grid{
 
 		}
 
-		void setBlock(int inp[][]){
-			//this is supposz
-        	block[0][0] = 1;
-			block[0][1] = 2;
-			block[0][2] = 3;
-			block[1][0] = 8;
-			block[1][1] = 0;
-			block[1][2] = 4;
-			block[2][0] = 7;
-			block[2][1] = 6;
-			block[2][2] = 5;
+		void setBlock(int inp[][3]){
+			for(int i=0;i<3;i++){
+ 				for(int j=0;j<3;j++){
+ 					block[i][j] = inp[i][j];
+ 				}
+ 			}
+
+		}
+
+		int getBlock(int i,int j){
+			return block[i][j];
 		}
 
 		bool left(){
@@ -124,8 +126,8 @@ class grid{
 			bool ret;
 			int i,j;
 			ret == true;
- 			for(i=0;i<3;i++){
- 				for(j=0;j<3;j++){
+ 			for(int i=0;i<3;i++){
+ 				for(int j=0;j<3;j++){
  					if(!(block[i][j] == base[i][j])){
  						ret = false;
  					}
@@ -152,11 +154,57 @@ class grid{
 
         //operator overloading
 
-        bool operator== (ValueExpr a) const{
-		
-	}
+        bool operator== (grid a) const{
+			bool ret;
+			ret = true;
+			for(int i=0;i<3;i++){
+ 				for(int j=0;j<3;j++){
+ 					if(!(block[i][j] == a.getBlock(i,j))){
+ 						ret = false;
+ 					}
+ 				}
+ 				if(ret == false){
+ 					break;
+ 				}
+ 			}
 
-        bool operator= (ValueExpr a) {
-	
-	}
+ 			return ret;
+	    }
+
+        bool operator= (grid a) {
+			for(int i=0;i<3;i++){
+ 				for(int j=0;j<3;j++){
+ 					block[i][j] = a.getBlock(i,j);
+ 				}
+ 			}
+	    }
+
+	    void clearer(){
+	    	block[0][0] = 1;
+			block[0][1] = 2;
+			block[0][2] = 3;
+			block[1][0] = 8;
+			block[1][1] = 0;
+			block[1][2] = 4;
+			block[2][0] = 7;
+			block[2][1] = 6;
+			block[2][2] = 5;
+	    }
+
+	    std::string printfn(){
+	    	std::string ret,b;
+	    	std::stringstream a;
+
+	    	ret = "";
+	    	for(int i = 0;i<3;i++){
+	    		for(int j = 0;j<3;j++){
+	    			a<<block[i][j];
+		            b = a.str();
+	    			ret = ret + b;
+	    		}
+	    		ret = ret + "\n";
+	    	}
+
+	    	return ret;
+	    }
 };
