@@ -11,6 +11,7 @@ int getInvCount(grid inp);
 void a_star(grid inp);
 int heur(grid start);
 void reconstruct_path(set<component> came_from);
+int tile_reversal(grid g);
 
 int main(){
 	grid inp;
@@ -408,4 +409,80 @@ void reconstruct_path(set<component> came_from){
 		came_from.erase(current);
     }
 	
+}
+
+int manhattan_distance(grid g){
+
+}
+
+int tile_reversal(grid g){
+	int count,a,b,c,d;
+	count = 0;
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			a=i-1;
+			b=j;
+			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+				c = g.getBlock(i,j);
+				d = g.getBase(a,b);
+				if(c==d){
+					c = g.getBase(i,j);
+					d = g.getBlock(a,b);
+					if(c==d){
+						count++;
+					}
+				}
+			}
+
+			a = i+1;
+			b = j;
+			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+				c = g.getBlock(i,j);
+				d = g.getBase(a,b);
+				if(c==d){
+					c = g.getBase(i,j);
+					d = g.getBlock(a,b);
+					if(c==d){
+						count++;
+					}
+				}
+			}
+
+			a = i;
+			b = j-1;
+			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+				c = g.getBlock(i,j);
+				d = g.getBase(a,b);
+				if(c==d){
+					c = g.getBase(i,j);
+					d = g.getBlock(a,b);
+					if(c==d){
+						count++;
+					}
+				}
+			}
+
+			a = i;
+			b = j+1;
+			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+				c = g.getBlock(i,j);
+				d = g.getBase(a,b);
+				if(c==d){
+					c = g.getBase(i,j);
+					d = g.getBlock(a,b);
+					if(c==d){
+						count++;
+					}
+				}
+			}
+		}
+	}
+
+	return count/2;
+}
+
+int heur(grid g){
+	int m;
+	m = tile_reversal(g) + manhattan_distance(g);
+	return m;
 }

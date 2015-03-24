@@ -42,6 +42,10 @@ class grid{
 			return block[i][j];
 		}
 
+		int getBase(int i,int j){
+			return base[i][j];
+		}
+
 		bool left(){
  	    	int tmp1,tmp2,co_ordinate11,co_ordinate12,co_ordinate21,co_ordinate22;
 
