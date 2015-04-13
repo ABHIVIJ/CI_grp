@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include <cmath>
 #include "grid.h"
 #include "component.h"
 
@@ -10,12 +11,13 @@ bool isSolvable(grid inp);
 int getInvCount(grid inp);
 void a_star(grid inp);
 int heur(grid start);
-void reconstruct_path(set<component> came_from);
+void reconstruct_path(set<component> current);
 int tile_reversal(grid g);
+int manhattan_distance(grid g);
 
 int main(){
 	grid inp;
-	int arr[3][3];
+	int arr[3][3],test;
 	
 	//here input the elements into the array
 	cout<<"Enter 9 integers representing the elements\n";
@@ -26,11 +28,15 @@ int main(){
 	}
 	inp.setBlock(arr);
 
+	// test = heur(inp);
+	// cout<<test<<"\n";
+
 	if(!isSolvable(inp)){
 		cout<<"Not Solvable\n";
 		return 0;
 	}
 	else{
+		cout<<"solvable\n";
 		a_star(inp);
 		return 0;
 	}
@@ -48,371 +54,231 @@ bool isSolvable(grid inp){
 
 int getInvCount(grid inp)
 {
-    //yet to be corrected
-    // int inv_count = 0;
-    // for (int i = 0; i < 8; i++)
-    //     for (int j = i+1; j < 9; j++)
-    //          if (arr[j] && arr[i] &&  arr[i] > arr[j])
-    //               inv_count++;
-    return 2;
+   int inv_count = 0,arr[9],one_d;
+    for(int i = 0;i<3;i++){
+        for(int j = 0;j<3;j++){
+            one_d = i*3 + j;
+            arr[one_d] = inp.getBlock(i,j);
+        }
+    }
+
+
+    for (int i = 0; i < 8; i++){
+       for (int j = i+1; j < 9; j++){
+          if(1<=arr[i] && arr[i]<=3){
+              if(arr[j] && arr[i] > arr[j]){
+                inv_count++;
+              }
+          }
+
+          if(arr[i] == 8){
+              if(arr[j] && arr[j] < 4){
+                inv_count++;
+              }
+          }
+
+          if(arr[i] == 4){
+              if(arr[j] && arr[j] != 5 && arr[j] != 6 && arr[j] != 7){
+                inv_count++;
+              }
+          }
+
+          if(arr[i] == 7){
+              if(arr[j] && arr[j] != 5 && arr[j] != 6){
+                inv_count++;
+              }
+          }
+
+          if(arr[i] == 6){
+              if(arr[j] && arr[j]!=5){
+                inv_count++;
+              }
+          }
+          if(arr[i] == 5){
+              if(arr[j]){
+                inv_count++;
+              }
+          }
+
+       }
+    }
+             
+    return inv_count;
 }
 
 void a_star(grid inp){
-	set<component> closed,open,came_from,all;
-	set<component>::iterator current,iter;
-	component inserter,temp,temp1;
-	grid g,g_up,g_down,g_left,g_right;
-	bool isLeft,isUp,isDown,isRight,isPresent,isPresent_open;
-	int h,tentative_g_score,g_child;
+    set<component> closed,open,child_set,came_from;
+    component inserter,current,current_child,temp;
+    grid g,g_right,g_left,g_up,g_down;
+    bool isRight,isLeft,isUp,isDown,isPresent;
+    int h,tentative_g_score,g_score_child,came_from_count;
 
-	closed.clear();
-	open.clear();
-	came_from.clear();
-	all.clear();
+    came_from_count = 0;
+    closed.clear();
+    open.clear();
 
+    inserter.setGscore(0);
     h = heur(inp);
-	inserter.setGrid(inp);
-	inserter.setGscore(0);
     inserter.setHscore(h);
-	inserter.setFscore(h);
-
-    open.insert(inserter);
-    all.insert(inserter);
-
-    while(!open.empty()){
-    	iter = open.begin();
-    	temp1 = *iter;
-    	g = temp1.getGrid();
-    	if(g.isRightConfig()){
-        	// reconstruct_path(came_from);
-        	break;
-    	}
-    	else{
-    		current = open.begin();
-    		closed.insert(*current);
-    		open.erase(current);
-    		
-    		//now generate the children
-    		g_right = g;
-    		g_left = g;
-    		g_up = g;
-    		g_down = g;
-    		isLeft = g_left.left();
-    		isRight = g_right.right();
-    		isUp = g_up.up();
-    		isDown = g_down.down();
-            
-            //start of the insertion of then compnents into the all set.......................................
-    		inserter.clearer();
-    		//set inserter grid as g_down;.............
-    		inserter.setGrid(g_down);
-    		isPresent = false;
-    		for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-    			temp = *itt;
-				if(temp.getGrid() == g_down){
-					isPresent = true;
-					break;
-				}
-    		}
-    		if(!isPresent){
-    			all.insert(inserter);
-    		}
-
-			inserter.clearer();
-    		//set inserter grid as g_up;.............
-    		inserter.setGrid(g_up);
-    		isPresent = false;
-    		for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-    			temp = *itt;
-				if(temp.getGrid() == g_up){
-					isPresent = true;
-					break;
-				}
-    		}
-    		if(!isPresent){
-    			all.insert(inserter);
-    		}
-
-    		inserter.clearer();
-    		//set inserter grid as g_left;.............
-    		inserter.setGrid(g_left);
-    		isPresent = false;
-    		for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-    			temp = *itt;
-				if(temp.getGrid() == g_left){
-					isPresent = true;
-					break;
-				}
-    		}
-    		if(!isPresent){
-    			all.insert(inserter);
-    		}
-
-    		inserter.clearer();
-    		//set inserter grid as g_right;.............
-    		inserter.setGrid(g_right);
-    		isPresent = false;
-    		for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-    			temp = *itt;
-				if(temp.getGrid() == g_right){
-					isPresent = true;
-					break;
-				}
-    		}
-    		if(!isPresent){
-    			all.insert(inserter);
-    		}    		
-
-    		//end of the insertion of then components into the all set.........................................
-
-    		if(isDown){
-    			g_child = 0;
-    			for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-	    			temp = *itt;
-					if(temp.getGrid() == g_down){
-						g_child = temp.getGscore();
-						break;
-					}
-	    		}
-
-    			isPresent = false;
-    			for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
-    				temp = *itt;
-    				if(temp.getGrid() == g_down){
-    					isPresent = true;
-    					break;
-    				}
-    			}
-
-    			if(!isPresent){
-    				temp1 = *iter;
-    				tentative_g_score = temp1.getGscore() + 1;
-    				isPresent_open = false;
-
-    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-	    				temp = *itt;
-	    				if(temp.getGrid() == g_down){
-	    					isPresent_open = true;
-	    					break;
-	    				}
-	    			}
-    				if(!isPresent_open || tentative_g_score < g_child){
-    					inserter.clearer();
-    					inserter.setGscore(tentative_g_score);
-    					h = heur(g_down);
-    					inserter.setHscore(h);
-    					inserter.setFscore(h + tentative_g_score);
-    					inserter.setGrid(g_down);
-    					came_from.insert(inserter);
-    					isPresent_open = false;
-
-	    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-		    				temp = *itt;
-		    				if(temp.getGrid() == g_down){
-		    					isPresent_open = true;
-		    					break;
-		    				}
-		    			}
-
-		    			if(!isPresent_open){
-		    				open.insert(inserter);
-		    			}
-    				}
-    			}
-    		}
-
-    		if(isRight){
-    			g_child = 0;
-    			for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-	    			temp = *itt;
-					if(temp.getGrid() == g_right){
-						g_child = temp.getGscore();
-						break;
-					}
-	    		}
-
-    			isPresent = false;
-    			for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
-    				temp = *itt;
-    				if(temp.getGrid() == g_right){
-    					isPresent = true;
-    					break;
-    				}
-    			}
-
-    			if(!isPresent){
-    				temp1 = *iter;
-    				tentative_g_score = temp1.getGscore() + 1;
-    				isPresent_open = false;
-
-    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-	    				temp = *itt;
-	    				if(temp.getGrid() == g_right){
-	    					isPresent_open = true;
-	    					break;
-	    				}
-	    			}
-    				if(!isPresent_open || tentative_g_score < g_child){
-    					inserter.clearer();
-    					inserter.setGscore(tentative_g_score);
-    					h = heur(g_right);
-    					inserter.setHscore(h);
-    					inserter.setFscore(h + tentative_g_score);
-    					inserter.setGrid(g_right);
-    					came_from.insert(inserter);
-    					isPresent_open = false;
-
-	    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-		    				temp = *itt;
-		    				if(temp.getGrid() == g_right){
-		    					isPresent_open = true;
-		    					break;
-		    				}
-		    			}
-
-		    			if(!isPresent_open){
-		    				open.insert(inserter);
-		    			}
-    				}
-    			}
-    		}
-
-    		if(isLeft){
-    			g_child = 0;
-    			for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-	    			temp = *itt;
-					if(temp.getGrid() == g_left){
-						g_child = temp.getGscore();
-						break;
-					}
-	    		}
-
-    			isPresent = false;
-    			for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
-    				temp = *itt;
-    				if(temp.getGrid() == g_left){
-    					isPresent = true;
-    					break;
-    				}
-    			}
-
-    			if(!isPresent){
-    				temp1 = *iter;
-    				tentative_g_score = temp1.getGscore() + 1;
-    				isPresent_open = false;
-
-    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-	    				temp = *itt;
-	    				if(temp.getGrid() == g_left){
-	    					isPresent_open = true;
-	    					break;
-	    				}
-	    			}
-    				if(!isPresent_open || tentative_g_score < g_child){
-    					inserter.clearer();
-    					inserter.setGscore(tentative_g_score);
-    					h = heur(g_left);
-    					inserter.setHscore(h);
-    					inserter.setFscore(h + tentative_g_score);
-    					inserter.setGrid(g_left);
-    					came_from.insert(inserter);
-    					isPresent_open = false;
-
-	    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-		    				temp = *itt;
-		    				if(temp.getGrid() == g_left){
-		    					isPresent_open = true;
-		    					break;
-		    				}
-		    			}
-
-		    			if(!isPresent_open){
-		    				open.insert(inserter);
-		    			}
-    				}
-    			}
-    		}
-
-    		if(isUp){
-    			g_child = 0;
-    			for(set<component>::iterator itt = all.begin(); itt != all.end(); itt++){
-	    			temp = *itt;
-					if(temp.getGrid() == g_up){
-						g_child = temp.getGscore();
-						break;
-					}
-	    		}
-
-    			isPresent = false;
-    			for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
-    				temp = *itt;
-    				if(temp.getGrid() == g_up){
-    					isPresent = true;
-    					break;
-    				}
-    			}
-
-    			if(!isPresent){
-    				temp1 = *iter;
-    				tentative_g_score = temp1.getGscore() + 1;
-    				isPresent_open = false;
-
-    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-	    				temp = *itt;
-	    				if(temp.getGrid() == g_up){
-	    					isPresent_open = true;
-	    					break;
-	    				}
-	    			}
-    				if(!isPresent_open || tentative_g_score < g_child){
-    					inserter.clearer();
-    					inserter.setGscore(tentative_g_score);
-    					h = heur(g_up);
-    					inserter.setHscore(h);
-    					inserter.setFscore(h + tentative_g_score);
-    					inserter.setGrid(g_up);
-    					came_from.insert(inserter);
-    					isPresent_open = false;
-
-	    				for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
-		    				temp = *itt;
-		    				if(temp.getGrid() == g_up){
-		    					isPresent_open = true;
-		    					break;
-		    				}
-		    			}
-
-		    			if(!isPresent_open){
-		    				open.insert(inserter);
-		    			}
-    				}
-    			}
-    		}
-    	}
-    }
-
-
-}
-
-int heur(grid inp){
-    return 1;
-}
-
-void reconstruct_path(set<component> came_from){
-	component current;
-	grid g;
+    inserter.setFscore(h);
+    inserter.setGrid(inp);
     
-    while(!came_from.empty()){
-    	current = *came_from.begin();
-		g = current.getGrid();
-		cout<<g.printfn()<<"\n";
-		came_from.erase(current);
+    open.insert(inserter);
+    
+    
+
+    while(!(open.empty())){
+        current = *open.begin();
+        g = current.getGrid();
+        
+        inserter = current;
+                inserter.setFscore(came_from_count);
+                came_from.insert(inserter);
+                came_from_count++;
+                
+        if(g.isRightConfig()){
+            //g.printfn();
+            reconstruct_path(came_from);
+            return;
+        }
+        
+        open.erase(open.begin());
+        
+        closed.insert(current);
+
+        g_right = g;
+        g_left = g;
+        g_up = g;
+        g_down = g;
+        isLeft = g_left.left();
+        isRight = g_right.right();
+        isUp = g_up.up();
+        isDown = g_down.down();
+
+        
+        if(isLeft){
+            // cout<<"hil\n";
+            inserter.clearer();
+            inserter.setGrid(g_left);
+            child_set.insert(inserter);
+        }
+
+        if(isRight){
+            // cout<<"hir\n";
+            inserter.clearer();
+            inserter.setGrid(g_right);
+            inserter.setFscore(1);
+            child_set.insert(inserter);
+        }
+        if(isUp){
+            // cout<<"hiu\n";
+            inserter.clearer();
+            inserter.setGrid(g_up);
+            inserter.setFscore(2);
+            child_set.insert(inserter);
+        }
+
+        if(isDown){
+            //cout<<"hid\n";
+            inserter.clearer();
+            inserter.setGrid(g_down);
+            inserter.setFscore(3);
+            child_set.insert(inserter);
+        }
+        
+        for(set<component>::iterator itt = child_set.begin(); itt != child_set.end(); itt++){
+            temp = *itt;
+            // temp.getGrid().printfn();
+            // cout<<"\n";
+        }
+        
+        while(!(child_set.empty())){
+            current_child = *child_set.begin();
+            child_set.erase(child_set.begin());
+
+            isPresent = false;
+            for(set<component>::iterator itt = closed.begin(); itt != closed.end(); itt++){
+                temp = *itt;
+                if(current_child.getGrid() == temp.getGrid()){
+                    isPresent = true;
+                    break;
+                }
+            }
+
+            if(isPresent){
+                continue;
+            }
+
+            tentative_g_score = current.getGscore() + 1;
+
+            isPresent = false;
+            for(set<component>::iterator itt = open.begin(); itt != open.end(); itt++){
+                temp = *itt;
+                if(current_child.getGrid() == temp.getGrid()){
+                    isPresent = true;
+                    g_score_child = temp.getGscore();
+                    current_child = temp;
+                    open.erase(itt);
+                    break;
+                }
+            }
+            
+
+            if(tentative_g_score > g_score_child){
+                open.insert(current_child);
+            }
+
+            if(!isPresent || tentative_g_score < g_score_child){
+                //cout<<&current;
+                current_child.setGscore(tentative_g_score);
+                h = heur(current_child.getGrid());
+                current_child.setFscore(h+tentative_g_score);
+                current_child.setHscore(h);
+                open.insert(current_child);
+            }
+
+        }
+
+
     }
-	
+
+}
+
+
+void reconstruct_path(set<component> current){
+    component temp;
+    for(set<component>::iterator itt = current.begin(); itt != current.end(); itt++){
+        temp = *itt;
+        temp.getGrid().printfn();
+        cout<<"\n";
+    }
 }
 
 int manhattan_distance(grid g){
+	int num,x_block,y_block,x_goal,y_goal,mdistance;
+	mdistance = 0;
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			num = g.getBlock(i,j);
+			
 
+			x_block = i;
+			y_block = j;
+			for(int k=0;k<3;k++){
+				for(int l=0;l<3;l++){
+					if(num == g.getBase(k,l)){
+						x_goal = k;
+						y_goal = l;
+						break;
+					}
+				}
+			}
+			if(num !=0)
+			mdistance += abs(x_goal - x_block) + abs(y_goal - y_block);
+		}
+	}
+
+	return mdistance;
 }
 
 int tile_reversal(grid g){
@@ -422,7 +288,7 @@ int tile_reversal(grid g){
 		for(int j=0;j<3;j++){
 			a=i-1;
 			b=j;
-			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+			if(a<3 && a>=0 && b<3 && b>=0 && g.getBlock(i,j) != 0){
 				c = g.getBlock(i,j);
 				d = g.getBase(a,b);
 				if(c==d){
@@ -436,7 +302,7 @@ int tile_reversal(grid g){
 
 			a = i+1;
 			b = j;
-			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+			if(a<3 && a>=0 && b<3 && b>=0 && g.getBlock(i,j) != 0){
 				c = g.getBlock(i,j);
 				d = g.getBase(a,b);
 				if(c==d){
@@ -450,7 +316,7 @@ int tile_reversal(grid g){
 
 			a = i;
 			b = j-1;
-			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+			if(a<3 && a>=0 && b<3 && b>=0 && g.getBlock(i,j) != 0){
 				c = g.getBlock(i,j);
 				d = g.getBase(a,b);
 				if(c==d){
@@ -464,7 +330,7 @@ int tile_reversal(grid g){
 
 			a = i;
 			b = j+1;
-			if(a<3 && a>0 && b<3 && b>0 && g.getBlock(i,j) != 0){
+			if(a<3 && a>=0 && b<3 && b>=0 && g.getBlock(i,j) != 0){
 				c = g.getBlock(i,j);
 				d = g.getBase(a,b);
 				if(c==d){

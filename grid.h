@@ -1,4 +1,7 @@
 #include <string>
+#include <iostream>
+
+using namespace std;
 
 class grid{
 	private:
@@ -33,6 +36,9 @@ class grid{
 			for(int i=0;i<3;i++){
  				for(int j=0;j<3;j++){
  					block[i][j] = inp[i][j];
+ 					if(inp[i][j] == 0){
+ 						zero_position = i*10 +j;
+ 					}
  				}
  			}
 
@@ -45,11 +51,19 @@ class grid{
 		int getBase(int i,int j){
 			return base[i][j];
 		}
+        
+        int getZero_position(){
+        	return zero_position;
+        }
+
+        void setZero_position(int a){
+        	zero_position = a;
+        }
 
 		bool left(){
  	    	int tmp1,tmp2,co_ordinate11,co_ordinate12,co_ordinate21,co_ordinate22;
 
- 	    	if(zero_position == 0 || zero_position == 11 || zero_position == 20){
+ 	    	if(zero_position == 0 || zero_position == 10 || zero_position == 20){
  	    		return false;
  	    	}
  	    	else{
@@ -81,7 +95,7 @@ class grid{
  	    		tmp1 = block[co_ordinate11][co_ordinate12];
  	    		block[co_ordinate11][co_ordinate12] = block[co_ordinate21][co_ordinate22];
  	    		block[co_ordinate21][co_ordinate22] = tmp1;
- 	    		zero_position = zero_position - 1;
+ 	    		zero_position = zero_position + 1;
  	    		return true;
  	    	}
 		}
@@ -101,7 +115,7 @@ class grid{
  	    		tmp1 = block[co_ordinate11][co_ordinate12];
  	    		block[co_ordinate11][co_ordinate12] = block[co_ordinate21][co_ordinate22];
  	    		block[co_ordinate21][co_ordinate22] = tmp1;
- 	    		zero_position = zero_position - 1;
+ 	    		zero_position = zero_position - 10;
  	    		return true;
  	    	}
 		}
@@ -121,19 +135,19 @@ class grid{
  	    		tmp1 = block[co_ordinate11][co_ordinate12];
  	    		block[co_ordinate11][co_ordinate12] = block[co_ordinate21][co_ordinate22];
  	    		block[co_ordinate21][co_ordinate22] = tmp1;
- 	    		zero_position = zero_position - 1;
+ 	    		zero_position = zero_position + 10;
  	    		return true;
  	    	}
 		}
 
 		bool isRightConfig(){
 			bool ret;
-			int i,j;
-			ret == true;
+			ret = true;
  			for(int i=0;i<3;i++){
  				for(int j=0;j<3;j++){
  					if(!(block[i][j] == base[i][j])){
  						ret = false;
+ 						break;
  					}
  				}
  				if(ret == false){
@@ -181,8 +195,17 @@ class grid{
  					block[i][j] = a.getBlock(i,j);
  				}
  			}
+
+ 			zero_position = a.getZero_position();
 	    }
 
+	    bool operator> (grid a) const{
+	    	return true;
+	    }
+
+	    bool operator< (grid a) const{
+	    	return false;
+	    }
 	    void clearer(){
 	    	block[0][0] = 1;
 			block[0][1] = 2;
@@ -195,20 +218,12 @@ class grid{
 			block[2][2] = 5;
 	    }
 
-	    std::string printfn(){
-	    	std::string ret,b;
-	    	std::stringstream a;
-
-	    	ret = "";
+	    void printfn(){
 	    	for(int i = 0;i<3;i++){
 	    		for(int j = 0;j<3;j++){
-	    			a<<block[i][j];
-		            b = a.str();
-	    			ret = ret + b;
+	    			cout<<block[i][j]<<"\t";
 	    		}
-	    		ret = ret + "\n";
+	    		cout<<"\n";
 	    	}
-
-	    	return ret;
 	    }
 };

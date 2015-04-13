@@ -41,6 +41,7 @@ class component{
 			return a;
 		}
 
+
 		//operator overloaing starts from here
 
 		bool operator== (component b) const{
